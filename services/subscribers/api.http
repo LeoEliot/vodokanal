@@ -1,0 +1,41 @@
+### Subscribers Service API Tests
+
+### Health Check
+GET http://localhost:8082/health
+
+### List Subscribers (page 1)
+GET http://localhost:8082/api/v1/subscribers?page=1&limit=20
+
+### Search Subscribers
+GET http://localhost:8082/api/v1/subscribers/search?q=Иванов
+
+### Get Subscriber by ID
+GET http://localhost:8082/api/v1/subscribers/1
+
+### Get Subscriber by Account Number
+GET http://localhost:8082/api/v1/subscribers/account/12345
+
+### Create Subscriber
+POST http://localhost:8082/api/v1/subscribers
+Content-Type: application/json
+
+{
+  "account_number": "12345",
+  "last_name": "Иванов",
+  "first_name": "Иван",
+  "middle_name": "Иванович",
+  "email": "ivanov@example.com",
+  "phone": "+7 (999) 123-45-67",
+  "address": "г. Москва, ул. Ленина, д. 1, кв. 1"
+}
+
+### Update Subscriber
+PUT http://localhost:8082/api/v1/subscribers/1
+Content-Type: application/json
+
+{
+  "phone": "+7 (999) 999-99-99"
+}
+
+### Delete Subscriber
+DELETE http://localhost:8082/api/v1/subscribers/1

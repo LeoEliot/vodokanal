@@ -1,0 +1,55 @@
+### Readings Service API Tests
+
+### Health Check
+GET http://localhost:8083/health
+
+### Create Reading
+POST http://localhost:8083/api/v1/readings
+Content-Type: application/json
+
+{
+  "subscriber_id": 1,
+  "counter_id": 1,
+  "value": 123.45,
+  "reading_date": "2024-01-15"
+}
+
+### List Readings (paginated)
+GET http://localhost:8083/api/v1/readings?page=1&limit=20
+
+### List Readings with filters
+GET http://localhost:8083/api/v1/readings?subscriber_id=1&counter_id=1
+
+### Get Reading by ID
+GET http://localhost:8083/api/v1/readings/1
+
+### Get Latest Readings
+GET http://localhost:8083/api/v1/readings/latest?subscriber_id=1
+
+### Get Latest Reading by Counter
+GET http://localhost:8083/api/v1/counters/1/readings/latest
+
+### Get Latest Readings by Subscriber
+GET http://localhost:8083/api/v1/subscribers/1/readings/latest
+
+### Get Monthly Readings
+GET http://localhost:8083/api/v1/readings/monthly?subscriber_id=1&months=6
+
+### Get Statistics
+GET http://localhost:8083/api/v1/counters/1/readings/statistics?subscriber_id=1
+
+### Update Reading
+PUT http://localhost:8083/api/v1/readings/1
+Content-Type: application/json
+
+{
+  "value": 130.00,
+  "verified": true
+}
+
+### Verify Reading
+POST http://localhost:8083/api/v1/readings/1/verify
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+### Delete Reading
+DELETE http://localhost:8083/api/v1/readings/1

@@ -1,0 +1,13 @@
+go 1.23
+
+use (
+	./services/gateway
+	./services/auth
+	./services/subscribers
+	./services/readings
+	./services/billing
+	./services/payments
+	./services/tickets
+	./services/counters
+	./services/admin
+)

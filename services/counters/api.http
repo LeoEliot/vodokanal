@@ -1,0 +1,67 @@
+### Counters Service API Tests
+
+### Health Check
+GET http://localhost:8087/health
+
+### Create Counter
+POST http://localhost:8087/api/v1/counters
+Content-Type: application/json
+
+{
+  "subscriber_id": 1,
+  "serial_number": "ABCD-12345",
+  "type": "cold",
+  "installation_date": "2024-01-15",
+  "initial_value": 100.0
+}
+
+### List Counters (paginated)
+GET http://localhost:8087/api/v1/counters?page=1&limit=20
+
+### List Counters with filters
+GET http://localhost:8087/api/v1/counters?subscriber_id=1&type=cold
+
+### Get Counter by ID
+GET http://localhost:8087/api/v1/counters/1
+
+### Get Counters by Subscriber
+GET http://localhost:8087/api/v1/subscribers/1/counters
+
+### Get Active Counters by Subscriber
+GET http://localhost:8087/api/v1/subscribers/1/counters/active
+
+### Get Counter Status
+GET http://localhost:8087/api/v1/counters/1/status
+
+### Get Counter Statuses by Subscriber
+GET http://localhost:8087/api/v1/subscribers/1/counters/statuses
+
+### Get Dashboard
+GET http://localhost:8087/api/v1/counters/dashboard
+
+### Update Counter
+PUT http://localhost:8087/api/v1/counters/1
+Content-Type: application/json
+
+{
+  "verification_date": "2024-06-15"
+}
+
+### Verify Counter
+POST http://localhost:8087/api/v1/counters/1/verify
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+Content-Type: application/json
+
+{
+  "verification_date": "2024-06-15",
+  "verified_value": 150.5
+}
+
+### Activate Counter
+POST http://localhost:8087/api/v1/counters/1/activate
+
+### Deactivate Counter
+POST http://localhost:8087/api/v1/counters/1/deactivate
+
+### Delete Counter
+DELETE http://localhost:8087/api/v1/counters/1

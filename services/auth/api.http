@@ -1,0 +1,54 @@
+### Auth Service API Tests
+
+### Health Check
+GET http://localhost:8081/health
+
+### Register New User
+POST http://localhost:8081/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "SecurePass123",
+  "name": "Ivan Ivanov"
+}
+
+### Login
+POST http://localhost:8081/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "SecurePass123"
+}
+
+### Refresh Token
+POST http://localhost:8081/api/v1/auth/refresh
+Content-Type: application/json
+
+{
+  "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+
+### Get Current User (requires auth)
+GET http://localhost:8081/api/v1/users/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+### Change Password (requires auth)
+POST http://localhost:8081/api/v1/auth/change-password
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+Content-Type: application/json
+
+{
+  "old_password": "SecurePass123",
+  "new_password": "NewSecurePass456"
+}
+
+### Logout (requires auth)
+POST http://localhost:8081/api/v1/auth/logout
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+X-Refresh-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+### Logout from All Devices (requires auth)
+POST http://localhost:8081/api/v1/auth/logout-all
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...

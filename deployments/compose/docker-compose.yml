@@ -1,0 +1,217 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: vodokanal-postgres
+    environment:
+      POSTGRES_DB: vodokanal
+      POSTGRES_USER: vodokanal
+      POSTGRES_PASSWORD: vodokanal_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vodokanal"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: vodokanal-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: vodokanal-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: vodokanal
+      RABBITMQ_DEFAULT_PASS: vodokanal_password
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Microservices
+  gateway:
+    build:
+      context: ../../
+      dockerfile: services/gateway/Dockerfile
+    container_name: vodokanal-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      PORT: 8080
+      AUTH_SERVICE_URL: http://auth:8081
+      SUBSCRIBERS_SERVICE_URL: http://subscribers:8082
+      READINGS_SERVICE_URL: http://readings:8083
+      BILLING_SERVICE_URL: http://billing:8084
+      PAYMENTS_SERVICE_URL: http://payments:8085
+      TICKETS_SERVICE_URL: http://tickets:8086
+      COUNTERS_SERVICE_URL: http://counters:8087
+      NOTIFICATIONS_SERVICE_URL: http://notifications:8088
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  auth:
+    build:
+      context: ../../
+      dockerfile: services/auth/Dockerfile
+    container_name: vodokanal-auth
+    ports:
+      - "8081:8081"
+    environment:
+      PORT: 8081
+      DATABASE_URL: postgres://vodokanal:vodokanal_password@postgres:5432/vodokanal?sslmode=disable
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: change-me-in-production
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  subscribers:
+    build:
+      context: ../../
+      dockerfile: services/subscribers/Dockerfile
+    container_name: vodokanal-subscribers
+    ports:
+      - "8082:8082"
+    environment:
+      PORT: 8082
+      DATABASE_URL: postgres://vodokanal:vodokanal_password@postgres:5432/vodokanal?sslmode=disable
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  readings:
+    build:
+      context: ../../
+      dockerfile: services/readings/Dockerfile
+    container_name: vodokanal-readings
+    ports:
+      - "8083:8083"
+    environment:
+      PORT: 8083
+      DATABASE_URL: postgres://vodokanal:vodokanal_password@postgres:5432/vodokanal?sslmode=disable
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  billing:
+    build:
+      context: ../../
+      dockerfile: services/billing/Dockerfile
+    container_name: vodokanal-billing
+    ports:
+      - "8084:8084"
+    environment:
+      PORT: 8084
+      DATABASE_URL: postgres://vodokanal:vodokanal_password@postgres:5432/vodokanal?sslmode=disable
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  payments:
+    build:
+      context: ../../
+      dockerfile: services/payments/Dockerfile
+    container_name: vodokanal-payments
+    ports:
+      - "8085:8085"
+    environment:
+      PORT: 8085
+      DATABASE_URL: postgres://vodokanal:vodokanal_password@postgres:5432/vodokanal?sslmode=disable
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  tickets:
+    build:
+      context: ../../
+      dockerfile: services/tickets/Dockerfile
+    container_name: vodokanal-tickets
+    ports:
+      - "8086:8086"
+    environment:
+      PORT: 8086
+      DATABASE_URL: postgres://vodokanal:vodokanal_password@postgres:5432/vodokanal?sslmode=disable
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  counters:
+    build:
+      context: ../../
+      dockerfile: services/counters/Dockerfile
+    container_name: vodokanal-counters
+    ports:
+      - "8087:8087"
+    environment:
+      PORT: 8087
+      DATABASE_URL: postgres://vodokanal:vodokanal_password@postgres:5432/vodokanal?sslmode=disable
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  notifications:
+    build:
+      context: ../../
+      dockerfile: services/notifications/Dockerfile
+    container_name: vodokanal-notifications
+    ports:
+      - "8088:8088"
+    environment:
+      PORT: 8088
+      RABBITMQ_URL: amqp://vodokanal:vodokanal_password@rabbitmq:5672/
+      SMTP_HOST: smtp.example.com
+      SMTP_PORT: 587
+      SMTP_USER: noreply@vodokanal.ru
+      SMTP_PASSWORD: your-smtp-password
+      SMTP_FROM: noreply@vodokanal.ru
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  redis_data:
+  rabbitmq_data:

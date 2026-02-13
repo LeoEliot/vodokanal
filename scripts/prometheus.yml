@@ -1,0 +1,85 @@
+# Prometheus configuration for Vodokanal monitoring
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'vodokanal'
+    environment: 'production'
+
+# Alertmanager configuration (optional)
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          # - alertmanager:9093
+
+# Rule files
+rule_files:
+  # - "alerts.yml"
+
+# Scrape configurations
+scrape_configs:
+  # Gateway metrics
+  - job_name: 'gateway'
+    static_configs:
+      - targets: ['gateway:8080']
+    metrics_path: '/metrics'
+
+  # Auth service metrics
+  - job_name: 'auth'
+    static_configs:
+      - targets: ['auth:8081']
+    metrics_path: '/metrics'
+
+  # Subscribers service metrics
+  - job_name: 'subscribers'
+    static_configs:
+      - targets: ['subscribers:8082']
+    metrics_path: '/metrics'
+
+  # Readings service metrics
+  - job_name: 'readings'
+    static_configs:
+      - targets: ['readings:8083']
+    metrics_path: '/metrics'
+
+  # Billing service metrics
+  - job_name: 'billing'
+    static_configs:
+      - targets: ['billing:8084']
+    metrics_path: '/metrics'
+
+  # Payments service metrics
+  - job_name: 'payments'
+    static_configs:
+      - targets: ['payments:8085']
+    metrics_path: '/metrics'
+
+  # Tickets service metrics
+  - job_name: 'tickets'
+    static_configs:
+      - targets: ['tickets:8086']
+    metrics_path: '/metrics'
+
+  # Counters service metrics
+  - job_name: 'counters'
+    static_configs:
+      - targets: ['counters:8087']
+    metrics_path: '/metrics'
+
+  # Notifications service metrics
+  - job_name: 'notifications'
+    static_configs:
+      - targets: ['notifications:8088']
+    metrics_path: '/metrics'
+
+  # PostgreSQL exporter (if added)
+  # - job_name: 'postgres'
+  #   static_configs:
+  #     - targets: ['postgres-exporter:9187']
+
+  # Redis exporter (if added)
+  # - job_name: 'redis'
+  #   static_configs:
+  #     - targets: ['redis-exporter:9121']
